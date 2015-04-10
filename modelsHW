@@ -1,0 +1,36 @@
+
+from sqlalchemy import *
+from datetime import datetime
+import sqlalchemy as sa
+
+from sqlalchemy.ext.declarative import declarative_base
+
+from sqlalchemy.orm import (
+    scoped_session,
+    sessionmaker,
+    )
+
+from zope.sqlalchemy import ZopeTransactionExtension
+
+DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+Base = declarative_base()
+
+
+class Entry(Base):
+    __tablename__ = 'entries'
+    id = Column(Integer, primary_key=True)
+    title = Column(UnicodeText(255), unique=True, nullable = False)
+    body = Column(UnicodeText(length=None))
+    created = Column(DateTime,default=datetime.datetime.now)
+    edited = Column(DateTime, onupdate=datetime.datetime.now, default=datetime.datetime.now)
+    
+    @classmethod
+    def all(cls):
+        return Session.query(Entry).order_by(sa.desc(Entry.created)).all()
+
+    @classmethod
+    def by_id(cls, id):
+        return Session.query(Entry).get(id)
+    
+
+Index('my_index', MyModel.name, unique=True, mysql_length=255)
